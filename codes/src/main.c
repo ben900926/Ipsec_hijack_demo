@@ -25,7 +25,6 @@ void ipsec_hijack(char *INTERFACE)
     Txp txp;
 
     init_dev(&dev, INTERFACE);
-    return;
     init_net(&net);
     init_esp(&esp);
     init_txp(&txp);
@@ -60,6 +59,7 @@ void ipsec_hijack(char *INTERFACE)
             strcpy(server_ip, net.dst_ip);
         }
 
+        // after receiving secret in state WAIT_SECRET
         if(*state == SEND_ACK){
             /*
             * when receiver receive a packet from sender, receiver should reply a ACK packet to sender, then sender will know that
@@ -73,6 +73,7 @@ void ipsec_hijack(char *INTERFACE)
         char const * const x_src_ip = strdup(net.x_src_ip);
         char const * const x_dst_ip = strdup(net.x_dst_ip);
 
+        // assign space and copy to x_src_ip
         strcpy(net.x_src_ip, x_src_ip);
         strcpy(net.x_dst_ip, x_dst_ip);
 
@@ -85,9 +86,11 @@ void ipsec_hijack(char *INTERFACE)
             exit(1);
         }
         if(FD_ISSET(fileno(stdin), &readfds)){
+            // read input
             if(fgets(str, 1024, stdin) == NULL){
                 return;
             }
+            printf("[fgets]: %s\n", str);
             /* send the message you input on the screen to server */
             send_msg(&dev, &net, &esp, &txp, str);
             *state = WAIT_SECRET;

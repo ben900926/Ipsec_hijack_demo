@@ -12,7 +12,8 @@ DEPS = \
 	src/hmac.c            \
 	src/transport.c       \
 	src/replay.c          \
-	src/sha1.c
+	src/sha1.c			  \
+	src/utils.c
 
 all: $(HIJACK)
 

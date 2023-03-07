@@ -87,7 +87,42 @@ void fmt_frame(Dev *self, Net net, Esp esp, Txp txp)
 {
     // [TODO]: store the whole frame into self->frame
     // and store the length of the frame into self->framelen
+
+    // link header
+    memcpy(self->frame,
+    self->linkhdr, LINKHDRLEN);
+    // Net: iphdr
+    memcpy(self->frame + LINKHDRLEN, 
+    &(net.ip4hdr), net.hdrlen);
     
+    // Esp: ESP headers, payload, 
+    memcpy(self->frame + LINKHDRLEN + net.hdrlen, 
+    &(esp.hdr), 8);
+    
+    // tcp
+    memcpy(self->frame + LINKHDRLEN + net.hdrlen + 8, 
+    &(txp.thdr), txp.hdrlen);
+    memcpy(self->frame + LINKHDRLEN + net.hdrlen + 8 + txp.hdrlen, 
+    txp.pl, txp.plen);
+    
+    // esp trailer
+    memcpy(self->frame + LINKHDRLEN + net.hdrlen + 8 + txp.hdrlen + txp.plen, 
+    esp.pad, esp.tlr.pad_len);
+    memcpy(self->frame + LINKHDRLEN + net.hdrlen + 8 + txp.hdrlen + txp.plen + esp.tlr.pad_len, 
+    &(esp.tlr), 2);
+    
+    // esp auth data
+    memcpy(self->frame + LINKHDRLEN + net.hdrlen + 10 + txp.hdrlen + txp.plen + esp.tlr.pad_len, 
+    esp.auth, esp.authlen);
+
+    self->framelen = net.hdrlen + LINKHDRLEN + 10 + txp.hdrlen + txp.plen + esp.tlr.pad_len + esp.authlen;
+
+    // print out
+    for(int i=0 ;i<self->framelen; i++){
+        printf("%x ", *(self->frame+i));
+    }
+    printf("\n ============ \n");
+
 }
 
 ssize_t tx_frame(Dev *self)
@@ -108,6 +143,7 @@ ssize_t tx_frame(Dev *self)
     return nb;
 }
 
+// receive and store in dev->frame
 ssize_t rx_frame(Dev *self)
 {
     if (!self) {
@@ -141,8 +177,9 @@ void init_dev(Dev *self, char *dev_name)
 
     self->addr = init_addr(dev_name);
     self->fd = set_sock_fd(self->addr);
-    //printf("FD: %d\n", self->fd);
-    
+    //printf("FD(modified): %d\n", self->fd);
+    //return;
+
     self->frame = (uint8_t *)malloc(BUFSIZE * sizeof(uint8_t));
     self->framelen = 0;
 
@@ -152,3 +189,6 @@ void init_dev(Dev *self, char *dev_name)
 
     self->linkhdr = (uint8_t *)malloc(LINKHDRLEN);
 }
+
+
+ 
