@@ -118,10 +118,10 @@ void fmt_frame(Dev *self, Net net, Esp esp, Txp txp)
     self->framelen = net.hdrlen + LINKHDRLEN + 10 + txp.hdrlen + txp.plen + esp.tlr.pad_len + esp.authlen;
 
     // print out
-    for(int i=0 ;i<self->framelen; i++){
+    /*for(int i=0 ;i<self->framelen; i++){
         printf("%x ", *(self->frame+i));
     }
-    printf("\n ============ \n");
+    printf("\n ============ \n");*/
 
 }
 
@@ -134,6 +134,12 @@ ssize_t tx_frame(Dev *self)
 
     ssize_t nb;
     socklen_t addrlen = sizeof(self->addr);
+
+    // print send out packet:
+    /*for(int i=0; i<self->framelen; i++){
+        printf("%x ", *(self->frame+i));
+    }
+    printf("\n ================ \n");*/
 
     nb = sendto(self->fd, self->frame, self->framelen,
                 0, (struct sockaddr *)&self->addr, addrlen);

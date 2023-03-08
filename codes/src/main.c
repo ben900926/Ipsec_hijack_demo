@@ -90,7 +90,7 @@ void ipsec_hijack(char *INTERFACE)
             if(fgets(str, 1024, stdin) == NULL){
                 return;
             }
-            printf("[fgets]: %s\n", str);
+            //printf("[fgets]: %s\n", str);
             /* send the message you input on the screen to server */
             send_msg(&dev, &net, &esp, &txp, str);
             *state = WAIT_SECRET;

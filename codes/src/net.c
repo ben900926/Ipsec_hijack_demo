@@ -25,7 +25,7 @@ uint16_t cal_ipv4_cksm(struct iphdr iphdr)
 
     while (ip_len > 1)
     {
-        printf("%x\n",(*ip_16));
+        //printf("%x\n",(*ip_16));
         sum += ntohs(*(ip_16));
         ip_16++;
         ip_len -= 2;
@@ -75,7 +75,13 @@ Net *fmt_net_rep(Net *self)
     // [TODO]: Fill up self->ip4hdr (prepare to send)
     self->ip4hdr.tot_len = ntohs(self->plen + self->hdrlen);
     //printf("plen: %u, hdrlen: %lu\n", self->plen, self->hdrlen);
-    self->ip4hdr.check = cal_ipv4_cksm(self->ip4hdr);
+    self->ip4hdr.check = ntohs(cal_ipv4_cksm(self->ip4hdr));
+    // ip
+    if (strcmp(self->x_dst_ip, self->src_ip) == 0) {
+        uint32_t tmp = self->ip4hdr.saddr;
+        self->ip4hdr.saddr = self->ip4hdr.daddr;
+        self->ip4hdr.daddr = tmp;
+    }
     return self;
 }
 

@@ -262,11 +262,13 @@ uint8_t *dissect_esp(Esp *self, uint8_t *esp_pkt, size_t esp_len)
 Esp *fmt_esp_rep(Esp *self, Proto p)
 {
     // [TODO]: Fill up ESP header and trailer (prepare to send)
-    self->hdr.seq = htonl(esp_hdr_rec.seq) + 1;
+    self->hdr.seq = (esp_hdr_rec.seq) + 1;
     self->hdr.spi = (esp_hdr_rec.spi);
-    printf("spi:%x; seq:%x\n", self->hdr.spi, self->hdr.seq);
+    //printf("spi:%x; seq:%x\n", self->hdr.spi, self->hdr.seq);
+    self->hdr.seq = htonl(self->hdr.seq);
+
     self->tlr.nxt = p;
-    printf("pad_len:%x; next:%x\n", self->tlr.pad_len, self->tlr.nxt);
+    //printf("pad_len:%x; next:%x\n", self->tlr.pad_len, self->tlr.nxt);
     
     return self;
 }

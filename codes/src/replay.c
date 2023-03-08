@@ -185,34 +185,15 @@ void get_info(Dev *dev, Net *net, Esp *esp, Txp *txp,int *state,char* victim_ip,
         record_txp(net, esp, txp);
         esp_hdr_rec.spi = esp->hdr.spi;
         esp->get_key(esp);
-
-        // test for auth data
-        /*uint8_t buf[1024];
-        size_t nb = 0;
-        uint32_t hd1 = (esp->hdr.spi);
-        uint32_t hd2 = (esp->hdr.seq);
-        memcpy(buf, &hd1, 4);
-        memcpy(buf+4, &hd2, 4);
-        memcpy(buf+8, esp->pl, esp->plen);
-        memcpy(buf+8+esp->plen, esp->pad, esp->tlr.pad_len);
-        memcpy(buf+8+esp->plen+esp->tlr.pad_len, &esp->tlr, 2);
-
-        printf("esp: \n");
-        for(int i=0; i<10+esp->plen+esp->tlr.pad_len; i++){
-            printf("%x ", *(buf+i));
+    }else{
+        if (strcmp(net->x_src_ip, net->src_ip) == 0) {
+            txp->x_tx_seq = ntohl(txp->thdr.th_seq) + txp->plen;
+            txp->x_tx_ack = ntohl(txp->thdr.th_ack);
         }
-        printf("\n");
-        nb = 10+esp->plen+esp->tlr.pad_len;
-        uint8_t* test_auth = (uint8_t*)malloc(100);
 
-        hmac_sha1_96(esp->esp_key, 16, buf, nb, test_auth);
-        for(int i=0; i<12; i++){
-            printf("%x ", *(esp->auth+i));
+        if (strcmp(net->x_src_ip, net->dst_ip) == 0) {
+            txp->x_tx_seq = ntohl(txp->thdr.th_ack);
+            txp->x_tx_ack = ntohl(txp->thdr.th_seq) + txp->plen;
         }
-        printf("\n");
-        for(int i=0; i<12; i++){
-            printf("%x ", *(test_auth+i));
-        }
-        printf("\n");*/
     }
 }

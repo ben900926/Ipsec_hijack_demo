@@ -94,8 +94,8 @@ uint16_t compute_tcp_checksum(struct iphdr *pIph, unsigned short *ipPayload, int
     //if any bytes left, pad the bytes and add
     if(tcpLen > 0) {
         //printf("+++++++++++padding, %dn", tcpLen);
-        //printf("extra: %x\n", (*ipPayload));
-        sum += ((*ipPayload)&htons(0xFF00));
+        //printf("extra: %x\n", ntohs(*ipPayload) & (0xFF00));
+        sum += (ntohs(*ipPayload) & (0xFF00));
     }
     //printf("tcp header sum: %lx\n", sum);
       //Fold 32-bit sum to 16 bits: add carrier to result
